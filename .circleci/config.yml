@@ -5,9 +5,36 @@ orbs:
 
 # Parameters are available to all elements of config.yml, these are accessible using `pipeline.parameters.PARAMETER`
 parameters:
-  slack_channel:
+  AUDITCI_LEVEL:
     type: string
-    default: '#cci-forms'
+    default: 'moderate'
+  TESTS_PATH:
+    type: string
+    default: 'tests/'
+  TESTS_IMAGE:
+    type: string
+    default: 'jahia/jahia-starter-template-package'
+  MODULE_ID:
+    type: string
+    default: 'jahia-starter-template-package'
+  TESTRAIL_PROJECTNAME:
+    type: string
+    default: 'Jahia Starter Template Package'
+  GITHUB_SLUG:
+    type: string
+    default: 'jahia/jahia-starter-template-package'
+  PRIMARY_RELEASE_BRANCH:
+    type: string
+    default: 'main' # main or master ? set the branch for the main release
+  RELEASE_ID:
+    type: string
+    default: ""
+  RELEASE_VERSION:
+    type: string
+    default: ""
+  IS_RELEASE:
+    type: boolean
+    default: false
 
 references:
   workdir: &workdir
