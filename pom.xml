@@ -33,7 +33,7 @@
     </parent>
     <artifactId>jahia-starter-template-package</artifactId>
     <name>Jahia Starter Template Package</name>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>Parent project to package all related components to Jahia Starter template</description>
     <properties>
