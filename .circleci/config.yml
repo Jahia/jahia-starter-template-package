@@ -155,6 +155,69 @@ jobs:
           paths:
             - ~/.m2
           key: sonar-dependencies-{{ checksum "pom.xml" }}
+  release:
+    <<: *workdir
+    docker: # run the steps with Docker
+      - image: cimg/openjdk:8.0.275-node
+    resource_class: xlarge
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v3-dependencies-{{ checksum "pom.xml" }}
+            # fallback to using the latest cache if no exact match is found
+            - v3-dependencies-
+      - add_ssh_keys:
+          fingerprints:
+            - "7a:64:1d:4e:d1:80:3c:85:d2:a3:c7:6f:01:21:87:68"
+      - run:
+          name: Delete github tag <<pipeline.parameters.RELEASE_VERSION>>
+          command: |
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            git config user.email "jahia-ci@jahia.com"
+            git config user.name "Jahia CI"
+            git tag --delete <<pipeline.parameters.RELEASE_VERSION>>
+            git push --delete origin <<pipeline.parameters.RELEASE_VERSION>>
+      - run:
+          name: Release prepare version for <<pipeline.parameters.RELEASE_VERSION>>
+          command: |
+            FINAL_RELEASE_VERSION=$(echo <<pipeline.parameters.RELEASE_VERSION>> | cut -d'-' -f 1)
+            MAJOR_VERSION=`echo $FINAL_RELEASE_VERSION | cut -d. -f1`
+            MINOR_VERSION=`echo $FINAL_RELEASE_VERSION | cut -d. -f2`
+            REVISION=`echo $FINAL_RELEASE_VERSION | cut -d. -f3`
+            NEXT_REVISION=`expr $REVISION + 1`
+            NEXT_DEVELOPMENT_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$NEXT_REVISION"-SNAPSHOT
+            mvn -s .circleci/.circleci.settings.xml -B -Dtag=$FINAL_RELEASE_VERSION release:prepare -DreleaseVersion=$FINAL_RELEASE_VERSION -DdevelopmentVersion="$MAJOR_VERSION.$MINOR_VERSION.$NEXT_REVISION"-SNAPSHOT
+      - run:
+          name: Update github release for id << pipeline.parameters.RELEASE_ID >>
+          command: |
+            yarn
+            GH_TOKEN=${GITHUB_API_TOKEN} yarn auto changelog
+            curl -X PATCH \
+            -H "Accept:application/vnd.github.v3+json" \
+            -d "{\"tag_name\":\"<<pipeline.parameters.RELEASE_VERSION>>\", \"prerelease\": false, \"draft\": false}" -u \
+            jahia-ci:$GITHUB_API_TOKEN https://api.github.com/repos/<<pipeline.parameters.GITHUB_SLUG>>/releases/<< pipeline.parameters.RELEASE_ID >>
+            curl \
+            -H "Content-Type: $(file -b --mime-type CHANGELOG.md)" \
+            -u jahia-ci:$GITHUB_API_TOKEN  \
+            --data-binary @CHANGELOG.md \
+            "https://uploads.github.com/repos/<<pipeline.parameters.GITHUB_SLUG>>/releases/<< pipeline.parameters.RELEASE_ID >>/assets?name=$(basename CHANGELOG.md)"
+      - run:
+          name: Perform release
+          command: |
+            mvn -s .circleci/.circleci.settings.xml release:perform -Prelease-to-staging-repository
+      - run:
+          name: Copy artifacts
+          command: |
+            mkdir /tmp/artifacts/
+            cp /home/circleci/source/target/*.jar /tmp/artifacts/
+      - store_artifacts:
+          path: /tmp/artifacts/
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v3-dependencies-{{ checksum "pom.xml" }}
 
 workflows:
   version: 2
@@ -177,3 +240,17 @@ workflows:
             branches:
               only:
                 - << pipeline.parameters.PRIMARY_RELEASE_BRANCH >>
+
+  # The on-release workflow was created to handle the full release lifecycle after creating a release using GitHub
+  # https://github.com/Jahia/sandbox/releases
+  # The release is first created using the "pre-release" tag and a pipeline is triggered from a GitHub action
+  # This pipeline perform the following action:
+  # - Delete the tag created by GitHub (unnecessary)
+  # - Run mvn release:prepare
+  # - Generate the changelog using auto (https://www.npmjs.com/package/auto)
+  # - Run mvn release:perform
+  on-release:
+    when: << pipeline.parameters.IS_RELEASE >>
+    jobs:
+      - release:
+          context: QA_ENVIRONMENT
