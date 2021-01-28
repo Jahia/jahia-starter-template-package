@@ -185,28 +185,20 @@ jobs:
             FINAL_RELEASE_VERSION=$(echo <<pipeline.parameters.RELEASE_VERSION>> | cut -d'-' -f 1)
             MAJOR_VERSION=`echo $FINAL_RELEASE_VERSION | cut -d. -f1`
             MINOR_VERSION=`echo $FINAL_RELEASE_VERSION | cut -d. -f2`
-            REVISION=`echo $FINAL_RELEASE_VERSION | cut -d. -f3`
-            NEXT_REVISION=`expr $REVISION + 1`
-            NEXT_DEVELOPMENT_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$NEXT_REVISION"-SNAPSHOT
-            mvn -s .circleci/.circleci.settings.xml -B -Dtag=$FINAL_RELEASE_VERSION release:prepare -DreleaseVersion=$FINAL_RELEASE_VERSION -DdevelopmentVersion="$MAJOR_VERSION.$MINOR_VERSION.$NEXT_REVISION"-SNAPSHOT
+            NEXT_MINOR_VERSION=`expr $MINOR_VERSION + 1`
+            NEXT_DEVELOPMENT_VERSION="$MAJOR_VERSION.$NEXT_MINOR_VERSION.0"-SNAPSHOT
+            mvn -s .circleci/.circleci.settings.xml -B -Dtag=<<pipeline.parameters.RELEASE_VERSION>> release:prepare -DreleaseVersion=<<pipeline.parameters.RELEASE_VERSION>> -DdevelopmentVersion=$NEXT_DEVELOPMENT_VERSION -DscmCommentPrefix="[skip ci] [maven-release-plugin]"
       - run:
           name: Update github release for id << pipeline.parameters.RELEASE_ID >>
           command: |
-            yarn
-            GH_TOKEN=${GITHUB_API_TOKEN} yarn auto changelog
             curl -X PATCH \
             -H "Accept:application/vnd.github.v3+json" \
             -d "{\"tag_name\":\"<<pipeline.parameters.RELEASE_VERSION>>\", \"prerelease\": false, \"draft\": false}" -u \
             jahia-ci:$GITHUB_API_TOKEN https://api.github.com/repos/<<pipeline.parameters.GITHUB_SLUG>>/releases/<< pipeline.parameters.RELEASE_ID >>
-            curl \
-            -H "Content-Type: $(file -b --mime-type CHANGELOG.md)" \
-            -u jahia-ci:$GITHUB_API_TOKEN  \
-            --data-binary @CHANGELOG.md \
-            "https://uploads.github.com/repos/<<pipeline.parameters.GITHUB_SLUG>>/releases/<< pipeline.parameters.RELEASE_ID >>/assets?name=$(basename CHANGELOG.md)"
       - run:
           name: Perform release
           command: |
-            mvn -s .circleci/.circleci.settings.xml release:perform -Prelease-to-staging-repository
+            mvn -s .circleci/.circleci.settings.xml release:perform -Prelease-to-staging-repository -DscmCommentPrefix="[skip ci] [maven-release-plugin]"
       - run:
           name: Copy artifacts
           command: |
