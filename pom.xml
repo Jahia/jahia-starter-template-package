@@ -38,9 +38,9 @@
         <jahia.manifest.license>org.jahia.core</jahia.manifest.license>
     </properties>
     <scm>
-        <connection>scm:git:git@github.com:Jahia/site-builder-template-components.git</connection>
-        <url>https://github.com/Jahia/site-builder-template-components.git</url>
-        <developerConnection>scm:git:git@github.com:Jahia/site-builder-template-components.git</developerConnection>
+        <connection>scm:git:git@github.com:Jahia/jahia-starter-template-package.git</connection>
+        <developerConnection>scm:git:git@github.com:Jahia/jahia-starter-template-package.git</developerConnection>
+        <url>https://github.com/Jahia/jahia-starter-template-package</url>
         <tag>HEAD</tag>
     </scm>
     <repositories>
@@ -66,12 +66,12 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>jahia-starter-template</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>page-builder-components</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
     </dependencies>
     <build>
