@@ -74,12 +74,12 @@ jobs:
       - *attach-workspace
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "pom.xml" }}
+            - v2-dependencies-{{ checksum "pom.xml" }}
       - run: mvn -s .circleci/.circleci.settings.xml clean install
       - save_cache:
           paths:
             - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
+          key: v2-dependencies-{{ checksum "pom.xml" }}
       # Environment provisioning is sometimes dependent upon dependencies build during mvn clean install
       # This step copies those dependencies and make them available for further actions,
       # such as being used to provision a running Jahia with a set of freshly built artifacts
