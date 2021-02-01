@@ -27,7 +27,7 @@
     </parent>
     <artifactId>jahia-starter-template-package</artifactId>
     <name>Jahia Starter Template Package</name>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
     <description>Parent project to package all related components to Jahia Starter template</description>
     <properties>
@@ -41,7 +41,7 @@
         <connection>scm:git:git@github.com:Jahia/jahia-starter-template-package.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/jahia-starter-template-package.git</developerConnection>
         <url>https://github.com/Jahia/jahia-starter-template-package</url>
-        <tag>HEAD</tag>
+        <tag>0.1.0</tag>
     </scm>
     <repositories>
         <repository>
