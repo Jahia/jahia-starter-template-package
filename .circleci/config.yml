@@ -74,12 +74,12 @@ jobs:
       - *attach-workspace
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "pom.xml" }}
+            - v1-dependencies-{{ checksum "pom.xml" }}
       - run: mvn -s .circleci/.circleci.settings.xml clean install
       - save_cache:
           paths:
             - ~/.m2
-          key: v2-dependencies-{{ checksum "pom.xml" }}
+          key: v1-dependencies-{{ checksum "pom.xml" }}
       # Environment provisioning is sometimes dependent upon dependencies build during mvn clean install
       # This step copies those dependencies and make them available for further actions,
       # such as being used to provision a running Jahia with a set of freshly built artifacts
@@ -162,11 +162,6 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v3-dependencies-{{ checksum "pom.xml" }}
-            # fallback to using the latest cache if no exact match is found
-            - v3-dependencies-
       - add_ssh_keys:
           fingerprints:
             - "58:ff:1d:1b:31:1c:36:e3:f7:15:a0:6b:37:90:67:60"
@@ -206,10 +201,6 @@ jobs:
             cp /home/circleci/source/target/*.jar /tmp/artifacts/
       - store_artifacts:
           path: /tmp/artifacts/
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v3-dependencies-{{ checksum "pom.xml" }}
 
 workflows:
   version: 2
