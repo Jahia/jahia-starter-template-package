@@ -93,7 +93,6 @@
                             <goal>list</goal>
                         </goals>
                         <configuration>
-                            <includeGroupIds>org.jahia.modules,org.jahia.se.modules</includeGroupIds>
                             <excludeTransitive>true</excludeTransitive>
                             <outputScope>false</outputScope>
                             <outputFile>${project.build.directory}/${project.artifactId}.dependencies
@@ -108,12 +107,26 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
+                            <includeGroupIds>org.jahia.modules,org.jahia.se.modules</includeGroupIds>
                             <excludeTransitive>true</excludeTransitive>
                             <skip>${package.skip}</skip>
                         </configuration>
                     </execution>
                     <execution>
                         <id>copy-dependencies-sources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeGroupIds>org.jahia.modules,org.jahia.se.modules</includeGroupIds>
+                            <outputDirectory>${project.build.directory}/sources</outputDirectory>
+                            <classifier>sources</classifier>
+                            <skip>${package.sources.skip}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-dependencies</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
