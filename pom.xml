@@ -93,6 +93,7 @@
                             <goal>list</goal>
                         </goals>
                         <configuration>
+                            <includeGroupIds>org.jahia.modules,org.jahia.se.modules</includeGroupIds>
                             <excludeTransitive>true</excludeTransitive>
                             <outputScope>false</outputScope>
                             <outputFile>${project.build.directory}/${project.artifactId}.dependencies
