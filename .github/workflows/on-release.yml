@@ -38,7 +38,7 @@ jobs:
         env:
           NEXUS_INTERNAL_URL: https://devtools.jahia.com/nexus/content/groups/internal/
         with:
-          github_slug: Jahia/jahia-startup-template-package
+          github_slug: Jahia/jahia-starter-template-package
           primary_release_branch: master
           release_id: ${{ github.event.release.id }}
           release_version: ${{ github.event.release.tag_name }}
@@ -57,7 +57,7 @@ jobs:
       - uses: jahia/jahia-modules-action/release-publication@v2
         name: Publish Module
         with:
-          module_id: jahia-startup-template-package
+          module_id: jahia-starter-template-package
           release_version: ${{ github.event.release.tag_name }}
           nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
